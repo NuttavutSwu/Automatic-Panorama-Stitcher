@@ -856,7 +856,7 @@ body {
 
 .canvas-viewport {
   position: relative;
-  background: #eef0f4;
+  background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   min-height: 380px;

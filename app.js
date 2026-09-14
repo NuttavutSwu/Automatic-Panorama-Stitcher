@@ -120,7 +120,8 @@ const els = {
 // OpenCV Runtime Handshake
 // ---------------------------------------------------------------------------
 
-window.onOpenCvReady = function () {
+function markCvReady() {
+  if (cvReady) return;
   cvReady = true;
   if (els.runtimeBadge) {
     els.runtimeBadge.className = 'status-pill status-ready';
@@ -128,7 +129,30 @@ window.onOpenCvReady = function () {
   }
   setProcessStatus(state.frames.length >= 2 ? 'พร้อมประกบภาพ' : 'OpenCV พร้อมแล้ว เพิ่มรูปภาพเพื่อเริ่มต้น');
   refreshControls();
-};
+}
+
+window.onOpenCvReady = markCvReady;
+
+// Fallback check in case cv loaded before or after handler attached
+if (typeof cv !== 'undefined' && cv.Mat) {
+  markCvReady();
+} else if (typeof cv !== 'undefined') {
+  cv['onRuntimeInitialized'] = markCvReady;
+} else {
+  const checkCvInterval = setInterval(() => {
+    if (typeof cv !== 'undefined') {
+      if (cv.Mat) {
+        clearInterval(checkCvInterval);
+        markCvReady();
+      } else {
+        cv['onRuntimeInitialized'] = () => {
+          clearInterval(checkCvInterval);
+          markCvReady();
+        };
+      }
+    }
+  }, 200);
+}
 
 function setProcessStatus(msg, isError = false) {
   if (!els.processStatus) return;

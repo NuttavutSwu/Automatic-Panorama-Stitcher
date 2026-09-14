@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Automatic Panorama Stitcher: Multi-image feature matching, Homography warping, and seamless blending using OpenCV.js WebAssembly.">
+  <meta name="description"
+    content="Automatic Panorama Stitcher: Multi-image feature matching, Homography warping, and seamless blending using OpenCV.js WebAssembly.">
   <title>Automatic Panorama Stitcher — Computer Vision Project</title>
 
   <!-- Google Fonts: Plus Jakarta Sans, IBM Plex Sans Thai, IBM Plex Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div class="app-container">
 
@@ -26,7 +31,9 @@
           </div>
           <h1 class="brand-heading">Automatic Panorama Stitcher</h1>
           <p class="brand-subheading">
-            ระบบต่อภาพพาโนรามาอัตโนมัติ: <strong>Multi-image Feature Matching</strong> (ORB + Lowe's Ratio), <strong>Homography Warping</strong> (RANSAC), และ <strong>Seamless Blending</strong> (Distance Transform) ทำงานบน WebAssembly 100%
+            ระบบต่อภาพพาโนรามาอัตโนมัติ: <strong>Multi-image Feature Matching</strong> (ORB + Lowe's Ratio),
+            <strong>Homography Warping</strong> (RANSAC), และ <strong>Seamless Blending</strong> (Distance Transform)
+            ทำงานบน WebAssembly 100%
           </p>
         </div>
         <div class="header-status-wrap">
@@ -36,11 +43,18 @@
           </div>
           <div class="header-action-links">
             <button type="button" id="themeToggleBtn" class="icon-link-btn" title="Toggle Dark/Light Mode">
-              <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>
+              <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+              </svg>
               <span id="themeText">Dark Mode</span>
             </button>
-            <a href="https://github.com/bunyaveedeechuay/Automatic-Panorama-Stitcher" target="_blank" rel="noopener" class="icon-link-btn" title="ดู Source Code บน GitHub">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            <a href="https://github.com/bunyaveedeechuay/Automatic-Panorama-Stitcher" target="_blank" rel="noopener"
+              class="icon-link-btn" title="ดู Source Code บน GitHub">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+              </svg>
               <span>GitHub Repo</span>
             </a>
           </div>
@@ -56,7 +70,8 @@
         <div class="card-header">
           <div class="header-left">
             <h2 class="card-title">1. ลำดับภาพอินพุต (Input Images)</h2>
-            <span class="card-desc">อัปโหลดรูปภาพที่ถ่ายต่อเนื่องจากซ้ายไปขวา (ควรมีส่วนซ้อนทับกันอย่างน้อย 20–30%)</span>
+            <span class="card-desc">อัปโหลดรูปภาพที่ถ่ายต่อเนื่องจากซ้ายไปขวา (ควรมีส่วนซ้อนทับกันอย่างน้อย
+              20–30%)</span>
           </div>
           <div class="header-actions">
             <div class="sample-selector-group">
@@ -65,25 +80,35 @@
                 <option value="2">ชุดที่ 2 — Sample Dataset 2</option>
                 <option value="3">ชุดที่ 3 — Sample Dataset 3</option>
               </select>
-              <button type="button" id="loadSampleBtn" class="btn btn-secondary btn-sm" title="โหลดภาพตัวอย่างจากชุดที่เลือก">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              <button type="button" id="loadSampleBtn" class="btn btn-secondary btn-sm"
+                title="โหลดภาพตัวอย่างจากชุดที่เลือก">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
                 <span>โหลดภาพตัวอย่าง</span>
               </button>
             </div>
             <button type="button" id="clearAllBtn" class="btn btn-ghost btn-sm" disabled>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
               <span>ล้างทั้งหมด</span>
             </button>
           </div>
         </div>
 
-        <div id="dropzone" class="dropzone-area" tabindex="0" role="button" aria-label="ลากรูปมาวางที่นี่หรือคลิกเพื่อเลือกไฟล์">
+        <div id="dropzone" class="dropzone-area" tabindex="0" role="button"
+          aria-label="ลากรูปมาวางที่นี่หรือคลิกเพื่อเลือกไฟล์">
           <input type="file" id="fileInput" accept="image/*" multiple hidden>
           <div class="dropzone-content">
             <div class="upload-icon-circle">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+              </svg>
             </div>
-            <p class="dropzone-title">ลากไฟล์รูปภาพมาวางตรงนี้ หรือ <button type="button" id="browseBtn" class="btn-text">เลือกไฟล์จากเครื่อง</button></p>
+            <p class="dropzone-title">ลากไฟล์รูปภาพมาวางตรงนี้ หรือ <button type="button" id="browseBtn"
+                class="btn-text">เลือกไฟล์จากเครื่อง</button></p>
             <p class="dropzone-sub">รองรับ JPG, PNG, WebP — สามารถลากสลับลำดับภาพในแถบฟิล์มด้านล่างได้</p>
           </div>
         </div>
@@ -95,7 +120,8 @@
             <span class="label-hint">💡 ลากรูปเพื่อสลับลำดับซ้าย ↔ ขวา</span>
           </div>
           <ul id="filmstrip" class="filmstrip-track" aria-label="แถบภาพสำหรับจัดเรียง"></ul>
-          <div id="filmstripEmpty" class="filmstrip-empty-hint">ยังไม่มีภาพในระบบ — กรุณาเลือกไฟล์หรือคลิกปุ่ม "โหลดภาพตัวอย่าง"</div>
+          <div id="filmstripEmpty" class="filmstrip-empty-hint">ยังไม่มีภาพในระบบ — กรุณาเลือกไฟล์หรือคลิกปุ่ม
+            "โหลดภาพตัวอย่าง"</div>
         </div>
       </section>
 
@@ -113,14 +139,16 @@
           <div class="config-group">
             <label for="blendModeSelect" class="config-label">
               <span>วิธีการ Blending (รอยต่อภาพ)</span>
-              <span class="info-tag" title="Distance Transform Blending คือเทคนิคที่สร้างค่าน้ำหนักจากระยะห่างขอบ ช่วยให้รอยต่อเนียนสนิท">สำคัญ</span>
+              <span class="info-tag"
+                title="Distance Transform Blending คือเทคนิคที่สร้างค่าน้ำหนักจากระยะห่างขอบ ช่วยให้รอยต่อเนียนสนิท">สำคัญ</span>
             </label>
             <select id="blendModeSelect" class="custom-select">
               <option value="distance_transform" selected>🌟 Seamless Blending (Distance Transform Weighted)</option>
               <option value="linear_feather">⚡ Linear Feathering (ไล่น้ำหนักเชิงเส้น)</option>
               <option value="no_blend">❌ No Blending (Hard Seam - แสดงรอยต่อเพื่อเปรียบเทียบ)</option>
             </select>
-            <span class="config-help">Distance Transform Blending จะคำนวณ Euclidean distance map ให้รอยต่อเรียบเนียนสมบูรณ์</span>
+            <span class="config-help">Distance Transform Blending จะคำนวณ Euclidean distance map
+              ให้รอยต่อเรียบเนียนสมบูรณ์</span>
           </div>
 
           <!-- Feature Detector Settings -->
@@ -166,11 +194,16 @@
         <div class="stitch-action-bar">
           <div class="action-left">
             <button type="button" id="stitchBtn" class="btn btn-primary btn-lg" disabled>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M10 8l6 4-6 4V8z" />
+              </svg>
               <span>ประกบภาพพาโนรามา (Stitch Panorama)</span>
             </button>
             <a id="downloadBtn" class="btn btn-success btn-lg" download="panorama.png" hidden>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+              </svg>
               <span>ดาวน์โหลดภาพผลลัพธ์ (PNG)</span>
             </a>
           </div>
@@ -185,11 +218,17 @@
       <section class="card dashboard-card">
         <div class="dashboard-tabs-bar" role="tablist">
           <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="tab-panorama">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
             <span>ผลลัพธ์พาโนรามา (Panorama)</span>
           </button>
           <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="tab-matches">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14.899A7 7 0 1115.71 8h1.79a4.5 4.5 0 012.5 8.242M12 12v9m-4-4l4 4 4-4"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 14.899A7 7 0 1115.71 8h1.79a4.5 4.5 0 012.5 8.242M12 12v9m-4-4l4 4 4-4" />
+            </svg>
             <span>Feature Matches Visualizer</span>
             <span id="matchesCountPill" class="tab-count-pill" hidden>0</span>
           </button>
@@ -203,11 +242,14 @@
               <span id="blendMeta" class="meta-label">โหมด: -</span>
             </div>
             <div class="toolbar-right">
-              <button type="button" id="toggleCompareBtn" class="btn btn-ghost btn-sm" hidden title="คลิกค้างไว้เพื่อดูภาพแบบไม่มี Blending">
+              <button type="button" id="toggleCompareBtn" class="btn btn-ghost btn-sm" hidden
+                title="คลิกค้างไว้เพื่อดูภาพแบบไม่มี Blending">
                 <span>กดค้างเพื่อดูแบบ No-Blending</span>
               </button>
               <button type="button" id="fullscreenBtn" class="btn btn-ghost btn-sm" title="ขยายเต็มหน้าจอ">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" />
+                </svg>
                 <span>ขยายใหญ่</span>
               </button>
             </div>
@@ -216,7 +258,11 @@
             <canvas id="outputCanvas"></canvas>
             <div id="outputPlaceholder" class="viewport-placeholder">
               <div class="placeholder-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
               </div>
               <p class="placeholder-text">ภาพผลลัพธ์พาโนรามาจะแสดงผลที่นี่</p>
               <p class="placeholder-sub">เพิ่มรูปภาพอย่างน้อย 2 ภาพแล้วกดปุ่ม "ประกบภาพพาโนรามา" ด้านบน</p>
@@ -243,11 +289,13 @@
             <canvas id="matchesCanvas"></canvas>
             <div id="matchesPlaceholder" class="viewport-placeholder">
               <p class="placeholder-text">ยังไม่มีข้อมูลการจับคู่จุดเด่น</p>
-              <p class="placeholder-sub">เมื่อเริ่มประกบภาพ ระบบจะวาดเส้นเชื่อมคู่จุดเด่น (ORB Inliers) ระหว่างภาพให้ดูที่นี่</p>
+              <p class="placeholder-sub">เมื่อเริ่มประกบภาพ ระบบจะวาดเส้นเชื่อมคู่จุดเด่น (ORB Inliers)
+                ระหว่างภาพให้ดูที่นี่</p>
             </div>
           </div>
           <div class="matches-legend">
-            <span class="legend-item"><span class="legend-dot inlier"></span> เส้นเขียว: RANSAC Inlier Matches (คู่จุดที่สอดคล้องกับระนาบจริง)</span>
+            <span class="legend-item"><span class="legend-dot inlier"></span> เส้นเขียว: RANSAC Inlier Matches
+              (คู่จุดที่สอดคล้องกับระนาบจริง)</span>
             <span class="legend-item"><span class="legend-dot keypoint"></span> จุดส้ม: ORB Keypoints</span>
           </div>
         </div>
@@ -261,8 +309,10 @@
     <!-- Footer -->
     <footer class="app-footer">
       <div class="footer-content">
-        <p><strong>Automatic Panorama Stitcher</strong> · โครงงานวิชา Computer Vision · ขับเคลื่อนด้วย OpenCV.js & WebAssembly</p>
-        <p class="footer-sub">ประมวลผลบน Client-side 100% · ไม่มีการอัปโหลดภาพขึ้นเซิร์ฟเวอร์ภายนอก · ปลอดภัยและเป็นส่วนตัว</p>
+        <p><strong>Automatic Panorama Stitcher</strong> · โครงงานวิชา Computer Vision · ขับเคลื่อนด้วย OpenCV.js &
+          WebAssembly</p>
+        <p class="footer-sub">ประมวลผลบน Client-side 100% · ไม่มีการอัปโหลดภาพขึ้นเซิร์ฟเวอร์ภายนอก ·
+          ปลอดภัยและเป็นส่วนตัว</p>
       </div>
     </footer>
 
@@ -270,15 +320,23 @@
 
   <!-- OpenCV.js Loader Handshake -->
   <script>
+    function triggerOpenCvReady() {
+      if (window.onOpenCvReady) {
+        window.onOpenCvReady();
+      }
+    }
     function onOpenCvLoad() {
       if (typeof cv !== 'undefined') {
-        cv['onRuntimeInitialized'] = () => {
-          if (window.onOpenCvReady) window.onOpenCvReady();
-        };
+        if (cv.Mat) {
+          triggerOpenCvReady();
+        } else {
+          cv['onRuntimeInitialized'] = triggerOpenCvReady;
+        }
       }
     }
   </script>
   <script async src="https://docs.opencv.org/4.9.0/opencv.js" onload="onOpenCvLoad();" type="text/javascript"></script>
   <script src="app.js"></script>
 </body>
+
 </html>
