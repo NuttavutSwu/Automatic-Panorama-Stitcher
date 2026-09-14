@@ -182,14 +182,6 @@
             <span>Feature Matches Visualizer</span>
             <span id="matchesCountPill" class="tab-count-pill" hidden>0</span>
           </button>
-          <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="tab-homography">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>
-            <span>Homography Matrix ($H_{3\times3}$)</span>
-          </button>
-          <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="tab-cvtheory">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-            <span>ทฤษฎี & อัลกอริทึม (Theory)</span>
-          </button>
         </div>
 
         <!-- Tab 1: Panorama Canvas -->
@@ -249,106 +241,7 @@
           </div>
         </div>
 
-        <!-- Tab 3: Homography Matrix -->
-        <div id="tab-homography" class="tab-panel" role="tabpanel">
-          <div class="homography-container">
-            <div class="pair-selector-wrap">
-              <label for="homographyPairSelect">เลือกคู่ภาพ:</label>
-              <select id="homographyPairSelect" class="custom-select custom-select-sm">
-                <option value="0">ยังไม่มีการคำนวณ Homography</option>
-              </select>
-            </div>
 
-            <div id="homographyDetailsWrap" class="homography-details-grid">
-              <!-- Matrix Card -->
-              <div class="matrix-card">
-                <h3 class="matrix-title">Homography Matrix $H_{3\times3}$ (Perspective Transform)</h3>
-                <p class="matrix-desc">คำนวณด้วย RANSAC จากพิกัดคู่จุด $p_A \sim H \cdot p_B$</p>
-                <div class="matrix-bracket-wrap">
-                  <div class="matrix-bracket left"></div>
-                  <div class="matrix-values-grid" id="matrixValuesGrid">
-                    <span class="m-cell">1.0000</span><span class="m-cell">0.0000</span><span class="m-cell">0.0000</span>
-                    <span class="m-cell">0.0000</span><span class="m-cell">1.0000</span><span class="m-cell">0.0000</span>
-                    <span class="m-cell">0.0000</span><span class="m-cell">0.0000</span><span class="m-cell">1.0000</span>
-                  </div>
-                  <div class="matrix-bracket right"></div>
-                </div>
-              </div>
-
-              <!-- Decomposition Analysis -->
-              <div class="matrix-analysis-card">
-                <h3 class="matrix-title">การวิเคราะห์พารามิเตอร์เชิงเรขาคณิต (Geometric Interpretation)</h3>
-                <ul class="analysis-list">
-                  <li>
-                    <span class="analysis-term">Translation $(\Delta x, \Delta y)$:</span>
-                    <span id="transVal" class="analysis-val">dx: 0.0 px, dy: 0.0 px</span>
-                    <small>การเลื่อนตำแหน่งในแนวแกนราบและแกนดิ่ง</small>
-                  </li>
-                  <li>
-                    <span class="analysis-term">Scale Ratio $(s_x, s_y)$:</span>
-                    <span id="scaleVal" class="analysis-val">sx: 1.00, sy: 1.00</span>
-                    <small>อัตราส่วนการขยายขนาดภาพ</small>
-                  </li>
-                  <li>
-                    <span class="analysis-term">Projective Warp $(h_{31}, h_{32})$:</span>
-                    <span id="projVal" class="analysis-val">0.0000, 0.0000</span>
-                    <small>ระดับความเอียงของระนาบมุมมอง (Tilt)</small>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 4: CV Theory & Pipeline Explanation -->
-        <div id="tab-cvtheory" class="tab-panel" role="tabpanel">
-          <div class="theory-content">
-            <h2 class="theory-title">ขั้นตอนการทำงานของ Automatic Panorama Stitcher</h2>
-            
-            <div class="theory-step-card">
-              <div class="step-badge">ขั้นตอนที่ 1</div>
-              <div class="step-body">
-                <h3>Feature Detection & Description (ORB)</h3>
-                <p>ใช้อัลกอริทึม <strong>ORB (Oriented FAST and Rotated BRIEF)</strong> ในการค้นหาจุดสนใจ (Keypoints) ที่ทนทานต่อการหมุน (Rotation Invariant) และสร้าง Bitstring Descriptors ขนาด 256-bit ซึ่งประมวลผลได้รวดเร็วและใช้หน่วยความจำน้อยกว่า SIFT/SURF อย่างมาก</p>
-              </div>
-            </div>
-
-            <div class="theory-step-card">
-              <div class="step-badge">ขั้นตอนที่ 2</div>
-              <div class="step-body">
-                <h3>Feature Matching (BFMatcher + Lowe's Ratio Test)</h3>
-                <p>จับคู่จุดเด่นด้วย <strong>Brute-Force Matcher</strong> โดยใช้ <strong>Hamming Distance</strong> จากนั้นกรองคู่ที่คลุมเครือออกด้วย <strong>Lowe's Ratio Test</strong> ($d_1 < 0.75 \times d_2$) โดยเปรียบเทียบระยะทางระหว่างคู่ที่ใกล้ที่สุดอันดับ 1 กับอันดับ 2</p>
-              </div>
-            </div>
-
-            <div class="theory-step-card">
-              <div class="step-badge">ขั้นตอนที่ 3</div>
-              <div class="step-body">
-                <h3>Homography Estimation & Outlier Rejection (RANSAC)</h3>
-                <p>ใช้ <strong>RANSAC (Random Sample Consensus)</strong> สุ่มเลือกคู่จุด 4 คู่เพื่อคำนวณเมทริกซ์ $H_{3\times3}$ แบบ Perspective Transform ทำซ้ำจนได้โมเดลที่ครอบคลุม Inliers มากที่สุด และขจัดจุดจับคู่ผิดพลาด (Outliers) ออกไป</p>
-              </div>
-            </div>
-
-            <div class="theory-step-card">
-              <div class="step-badge">ขั้นตอนที่ 4</div>
-              <div class="step-body">
-                <h3>Homography Warping & Canvas Expansion</h3>
-                <p>ฉายพิกัดมุมทั้งสี่ของภาพเพื่อคำนวณ Bounding Box รวม ($minX, minY, maxX, maxY$) จากนั้นเลื่อนแกนพิกัดด้วย Translation Matrix $T$ และทำการบิดมุมมองด้วยคำสั่ง <code>cv.warpPerspective</code></p>
-              </div>
-            </div>
-
-            <div class="theory-step-card highlight-step">
-              <div class="step-badge">ขั้นตอนที่ 5</div>
-              <div class="step-body">
-                <h3>Seamless Blending (Distance Transform Weighted Feathering)</h3>
-                <p>แก้ปัญหารอยต่อคมชัด (Hard Seam Line) และความแตกต่างของแสงด้วยการหา <strong>Euclidean Distance Transform</strong> ของ Mask แต่ละภาพ เพื่อคำนวณค่าน้ำหนักตามระยะห่างจากขอบ:
-                  <br>
-                  $$w_A(x,y) = \frac{D_A(x,y)}{D_A(x,y) + D_B(x,y)}, \quad w_B(x,y) = 1 - w_A(x,y)$$
-                  ทำให้บริเวณที่ภาพซ้อนทับกันผสมผสานกันอย่างเรียบเนียน ไร้รอยต่อ</p>
-              </div>
-            </div>
-          </div>
-        </div>
 
       </section>
 
