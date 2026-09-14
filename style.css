@@ -516,25 +516,6 @@ body {
   font-weight: 500;
 }
 
-/* ---------- Status Bar ---------- */
-.status-bar {
-  display: flex;
-  align-items: center;
-  padding: 4px 2px;
-  min-height: 22px;
-}
-
-.status-msg {
-  font-size: 12.5px;
-  font-family: var(--font-mono);
-  color: var(--text-tertiary);
-  transition: color 0.2s ease;
-}
-
-.status-msg.error {
-  color: #f87171;
-}
-
 /* ---------- Progress Container ---------- */
 .progress-container {
   display: flex;
@@ -547,12 +528,16 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 12px;
+  font-size: 12.5px;
   font-family: var(--font-mono);
 }
 
-.progress-label {
-  color: var(--text-tertiary);
+.status-msg {
+  color: var(--text-secondary);
+}
+
+.status-msg.error {
+  color: #ef4444;
 }
 
 .status-num {
@@ -571,8 +556,7 @@ body {
 .progress-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--accent-primary), #60a5fa);
-  transition: width 0.25s ease;
-  border-radius: var(--radius-full);
+  transition: width 0.2s ease;
 }
 
 /* ---------- Studio Viewport ---------- */
