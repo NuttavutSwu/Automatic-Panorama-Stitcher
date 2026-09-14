@@ -5,6 +5,44 @@
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
+// Theme Toggle Logic
+// ---------------------------------------------------------------------------
+const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+document.documentElement.setAttribute('data-theme', savedTheme);
+
+window.addEventListener('DOMContentLoaded', () => {
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  const themeIcon = document.getElementById('themeIcon');
+  const themeText = document.getElementById('themeText');
+
+  function updateThemeUI(theme) {
+    if (!themeIcon || !themeText) return;
+    if (theme === 'dark') {
+      themeIcon.innerHTML = '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>';
+      themeText.textContent = 'Light Mode';
+    } else {
+      themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>';
+      themeText.textContent = 'Dark Mode';
+    }
+  }
+
+  updateThemeUI(savedTheme);
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeUI(newTheme);
+      
+      // We can trigger a re-render if we really want, but for now just updating DOM is enough.
+      // The canvas background is updated when stitch is clicked again.
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------
 // Global State
 // ---------------------------------------------------------------------------
 
@@ -33,6 +71,7 @@ const els = {
   fileInput: document.getElementById('fileInput'),
   browseBtn: document.getElementById('browseBtn'),
   loadSampleBtn: document.getElementById('loadSampleBtn'),
+  sampleDatasetSelect: document.getElementById('sampleDatasetSelect'),
   clearAllBtn: document.getElementById('clearAllBtn'),
   filmstrip: document.getElementById('filmstrip'),
   filmstripEmpty: document.getElementById('filmstripEmpty'),
@@ -161,31 +200,43 @@ els.dropzone.addEventListener('click', (e) => {
   if (e.target !== els.browseBtn) els.fileInput.click();
 });
 
-// Sample images loader (1.jpg, 2.jpg, 3.jpg)
+// Sample images loader — supports 3 datasets via dropdown
+const SAMPLE_DATASETS = {
+  '1': { folder: 'Sample Dataset', files: ['1.jpg', '2.jpg', '3.jpg'] },
+  '2': { folder: 'Sample Dataset 2', files: ['1.jpg', '2.jpg', '3.jpg'] },
+  '3': { folder: 'Sample Dataset 3', files: ['1.jpg', '2.jpg', '3.jpg'] },
+};
+
 async function loadSamplePreset() {
-  const sampleNames = ['1.jpg', '2.jpg', '3.jpg'];
-  setProcessStatus('กำลังโหลดภาพตัวอย่าง 1.jpg, 2.jpg, 3.jpg...');
+  const selectedSet = els.sampleDatasetSelect ? els.sampleDatasetSelect.value : '1';
+  const dataset = SAMPLE_DATASETS[selectedSet];
+  if (!dataset) return;
+
+  const sampleNames = dataset.files;
+  const basePath = dataset.folder;
+  setProcessStatus(`กำลังโหลดภาพตัวอย่างจาก "${basePath}"...`);
   try {
     state.frames.forEach((f) => URL.revokeObjectURL(f.url));
     state.frames = [];
 
     for (let i = 0; i < sampleNames.length; i++) {
       const name = sampleNames[i];
-      const resp = await fetch(name);
-      if (!resp.ok) throw new Error(`ไม่พบไฟล์ตัวอย่าง ${name}`);
+      const url = `${basePath}/${name}`;
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`ไม่พบไฟล์ตัวอย่าง ${url} — กรุณาเพิ่มรูปในโฟลเดอร์ "${basePath}"`);
       const blob = await resp.blob();
       const file = new File([blob], name, { type: 'image/jpeg' });
       state.frames.push({
-        id: `sample-${i}-${Date.now()}`,
+        id: `sample-${selectedSet}-${i}-${Date.now()}`,
         file,
-        name,
+        name: `[ชุด${selectedSet}] ${name}`,
         url: URL.createObjectURL(file),
       });
     }
 
     renderFilmstrip();
     refreshControls();
-    setProcessStatus('โหลดภาพตัวอย่าง 3 ภาพเสร็จสิ้น — กด "ประกบภาพพาโนรามา" ได้เลย!');
+    setProcessStatus(`โหลดภาพตัวอย่างชุดที่ ${selectedSet} (${sampleNames.length} ภาพ) เสร็จสิ้น — กด "ประกบภาพพาโนรามา" ได้เลย!`);
   } catch (err) {
     console.error(err);
     setProcessStatus(`เกิดข้อผิดพลาดในการโหลดตัวอย่าง: ${err.message}`, true);
@@ -370,7 +421,9 @@ function renderSideBySideMatches(canvasA, canvasB, goodQ, goodT, inlierMask, nam
   canvas.height = maxH + 46;
 
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#080b11';
+  
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  ctx.fillStyle = isDark ? '#080b11' : '#e8ecf1';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Draw input images
@@ -378,7 +431,7 @@ function renderSideBySideMatches(canvasA, canvasB, goodQ, goodT, inlierMask, nam
   ctx.drawImage(canvasB, wA + 24, 34, wB, hB);
 
   // Headers
-  ctx.fillStyle = '#94a3b8';
+  ctx.fillStyle = isDark ? '#94a3b8' : '#374151';
   ctx.font = '13px "IBM Plex Mono", monospace';
   ctx.fillText(nameA, 8, 22);
   ctx.fillText(nameB, wA + 30, 22);
@@ -397,7 +450,7 @@ function renderSideBySideMatches(canvasA, canvasB, goodQ, goodT, inlierMask, nam
       const yA = goodT[i * 2 + 1] * scale + 34;
 
       // Connecting line
-      ctx.strokeStyle = 'rgba(16, 185, 129, 0.65)';
+      ctx.strokeStyle = isDark ? 'rgba(16, 185, 129, 0.65)' : 'rgba(5, 150, 105, 0.7)';
       ctx.lineWidth = 1.3;
       ctx.beginPath();
       ctx.moveTo(xA, yA);
@@ -405,7 +458,7 @@ function renderSideBySideMatches(canvasA, canvasB, goodQ, goodT, inlierMask, nam
       ctx.stroke();
 
       // Keypoints
-      ctx.fillStyle = '#f59e0b';
+      ctx.fillStyle = isDark ? '#f59e0b' : '#d97706';
       ctx.beginPath();
       ctx.arc(xA, yA, 2.5, 0, Math.PI * 2);
       ctx.fill();
@@ -635,8 +688,12 @@ async function stitchAll() {
         if (isInlier) inliers++;
       }
 
-      if (inliers < 8) {
-        throw new Error(`Inliers ไม่พอ (${inliers} จุด) ระหว่างภาพที่ ${i + 1} และ ${i + 2}`);
+      const inlierRatioCheck = (inliers / numGood) * 100;
+      if (inlierRatioCheck < 20) {
+        throw new Error(
+          `Inlier Ratio ต่ำเกินไป (${inlierRatioCheck.toFixed(1)}% — ต้องการอย่างน้อย 20%) ` +
+          `ระหว่างภาพที่ ${i + 1} และ ${i + 2} — ภาพอาจไม่ใช่ฉากเดียวกัน หรือมีส่วนซ้อนทับกันน้อยเกินไป`
+        );
       }
 
       const Hd = Array.from(H.data64F);
