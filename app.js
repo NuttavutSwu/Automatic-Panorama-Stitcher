@@ -35,7 +35,7 @@ window.addEventListener('DOMContentLoaded', () => {
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
       updateThemeUI(newTheme);
-      
+
       // We can trigger a re-render if we really want, but for now just updating DOM is enough.
       // The canvas background is updated when stitch is clicked again.
     });
@@ -203,8 +203,8 @@ els.dropzone.addEventListener('click', (e) => {
 // Sample images loader — supports 3 datasets via dropdown
 const SAMPLE_DATASETS = {
   '1': { folder: 'Sample Dataset', files: ['1.jpg', '2.jpg', '3.jpg'] },
-  '2': { folder: 'Sample Dataset 2', files: ['11040035_l.png', '11040035_r.png'] },
-  '3': { folder: 'Sample Dataset 3', files: ['11040035ours_l.PNG', '11040035ours_r.PNG'] },
+  '2': { folder: 'Sample Dataset 2', files: ['audi-rs4-pt1.jpg', 'audi-rs4-pt2.jpg', 'audi-rs4-pt3.jpg'] },
+  '3': { folder: 'Sample Dataset 3', files: ['bmw-i8-pt1.jpg', 'bmw-i8-pt2.jpg', 'bmw-i8-pt3.jpg'] },
 };
 
 async function loadSamplePreset() {
@@ -251,11 +251,11 @@ els.clearAllBtn.addEventListener('click', () => {
   state.frames = [];
   state.pairsData = [];
   if (state.currentResultMat) {
-    try { state.currentResultMat.delete(); } catch (_) {}
+    try { state.currentResultMat.delete(); } catch (_) { }
     state.currentResultMat = null;
   }
   if (state.hardCutMat) {
-    try { state.hardCutMat.delete(); } catch (_) {}
+    try { state.hardCutMat.delete(); } catch (_) { }
     state.hardCutMat = null;
   }
   renderFilmstrip();
@@ -422,7 +422,7 @@ function renderSideBySideMatches(canvasA, canvasB, goodQ, goodT, inlierMask, nam
   canvas.height = maxH + 46;
 
   const ctx = canvas.getContext('2d');
-  
+
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   ctx.fillStyle = isDark ? '#080b11' : '#e8ecf1';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -565,11 +565,11 @@ async function stitchAll() {
   state.isProcessing = true;
   state.pairsData = [];
   if (state.currentResultMat) {
-    try { state.currentResultMat.delete(); } catch (_) {}
+    try { state.currentResultMat.delete(); } catch (_) { }
     state.currentResultMat = null;
   }
   if (state.hardCutMat) {
-    try { state.hardCutMat.delete(); } catch (_) {}
+    try { state.hardCutMat.delete(); } catch (_) { }
     state.hardCutMat = null;
   }
 
@@ -922,13 +922,12 @@ async function stitchAll() {
     // Metadata & Badges
     const elapsedSec = ((performance.now() - tStart) / 1000).toFixed(2);
     els.resMeta.textContent = `ความละเอียด: ${finalMat.cols} × ${finalMat.rows} px`;
-    els.blendMeta.textContent = `โหมด: ${
-      options.blendMode === 'distance_transform'
+    els.blendMeta.textContent = `โหมด: ${options.blendMode === 'distance_transform'
         ? 'Seamless (Distance Transform)'
         : options.blendMode === 'linear_feather'
-        ? 'Linear Feather'
-        : 'No Blending'
-    }`;
+          ? 'Linear Feather'
+          : 'No Blending'
+      }`;
     els.execMetricsBadge.textContent = `⏱ ${elapsedSec}s`;
     els.execMetricsBadge.hidden = false;
     els.toggleCompareBtn.hidden = false;
@@ -944,10 +943,10 @@ async function stitchAll() {
   } finally {
     // Cleanup temporary mats
     cleanupMats.forEach((m) => {
-      try { m.delete(); } catch (_) {}
+      try { m.delete(); } catch (_) { }
     });
     loadedImages.forEach((img) => {
-      try { img.mat.delete(); } catch (_) {}
+      try { img.mat.delete(); } catch (_) { }
     });
     state.isProcessing = false;
     refreshControls();
@@ -1057,13 +1056,12 @@ function restoreBlended() {
   els.toggleCompareBtn.style.background = '';
   els.toggleCompareBtn.style.borderColor = '';
   cv.imshow('outputCanvas', state.currentResultMat);
-  els.blendMeta.textContent = `โหมด: ${
-    els.blendModeSelect.value === 'distance_transform'
+  els.blendMeta.textContent = `โหมด: ${els.blendModeSelect.value === 'distance_transform'
       ? 'Seamless (Distance Transform)'
       : els.blendModeSelect.value === 'linear_feather'
-      ? 'Linear Feather'
-      : 'No Blending'
-  }`;
+        ? 'Linear Feather'
+        : 'No Blending'
+    }`;
 }
 
 els.toggleCompareBtn.addEventListener('mousedown', showUnblendedCompare);
