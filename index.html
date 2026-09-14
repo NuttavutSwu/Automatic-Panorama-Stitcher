@@ -127,10 +127,15 @@
         </div>
       </section>
 
-      <!-- Minimal Progress Line -->
+      <!-- Always-visible status bar -->
+      <div class="status-bar">
+        <span id="status" class="status-msg">กำลังโหลด OpenCV.js...</span>
+      </div>
+
+      <!-- Progress Line (hidden until processing) -->
       <div id="progressWrap" class="progress-container" hidden>
         <div class="progress-meta">
-          <span id="status" class="status-msg">พร้อมทำงาน</span>
+          <span class="progress-label">กำลังประมวลผล</span>
           <span id="progressPercent" class="status-num">0%</span>
         </div>
         <div class="progress-track">
