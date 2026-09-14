@@ -28,7 +28,6 @@
 5. **Interactive UI & Demo Presets**:
    - ปุ่ม **"โหลดภาพตัวอย่าง (Sample Demo)"** โหลดภาพ `1.jpg`, `2.jpg`, `3.jpg` มาทดสอบได้ในคลิกเดียว
    - ปรับแต่งพารามิเตอร์ ORB Keypoints, RANSAC Inlier Threshold ได้ตามต้องการ
-   - แท็บ **Homography Matrix Inspector** แสดงค่าเมทริกซ์ $H_{3\times3}$ และวิเคราะห์ Translation / Scale / Tilt
 
 ---
 

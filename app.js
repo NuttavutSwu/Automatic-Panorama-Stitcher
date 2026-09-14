@@ -279,8 +279,8 @@ function clearOutput() {
   els.matchesCanvas.removeAttribute('height');
   els.matchesPlaceholder.hidden = false;
   els.matchesCountPill.hidden = true;
-  els.pairSelect.innerHTML = '<option value="0">ยังไม่มีข้อมูลการจับคู่</option>';
-  els.homographyPairSelect.innerHTML = '<option value="0">ยังไม่มีการคำนวณ Homography</option>';
+  if (els.pairSelect) els.pairSelect.innerHTML = '<option value="0">ยังไม่มีข้อมูลการจับคู่</option>';
+  if (els.homographyPairSelect) els.homographyPairSelect.innerHTML = '<option value="0">ยังไม่มีการคำนวณ Homography</option>';
 }
 
 // ---------------------------------------------------------------------------
@@ -910,8 +910,8 @@ function populatePairSelectors() {
     optionsHtml += `<option value="${idx}">คู่ที่ ${idx + 1}: ${p.nameA} ↔ ${p.nameB}</option>`;
   });
 
-  els.pairSelect.innerHTML = optionsHtml;
-  els.homographyPairSelect.innerHTML = optionsHtml;
+  if (els.pairSelect) els.pairSelect.innerHTML = optionsHtml;
+  if (els.homographyPairSelect) els.homographyPairSelect.innerHTML = optionsHtml;
   els.matchesCountPill.textContent = `${state.pairsData.length} คู่`;
   els.matchesCountPill.hidden = false;
 }
@@ -921,51 +921,62 @@ function renderActivePairVisuals(pairIdx) {
   if (!p) return;
 
   // Render Matches Canvas
-  const mCtx = els.matchesCanvas.getContext('2d');
-  els.matchesCanvas.width = p.matchCanvas.width;
-  els.matchesCanvas.height = p.matchCanvas.height;
-  mCtx.drawImage(p.matchCanvas, 0, 0);
-  els.matchesPlaceholder.hidden = true;
+  if (els.matchesCanvas && els.matchesPlaceholder) {
+    const mCtx = els.matchesCanvas.getContext('2d');
+    els.matchesCanvas.width = p.matchCanvas.width;
+    els.matchesCanvas.height = p.matchCanvas.height;
+    mCtx.drawImage(p.matchCanvas, 0, 0);
+    els.matchesPlaceholder.hidden = true;
+  }
 
   // Render Stats
-  els.statTotalMatches.textContent = p.totalMatches;
-  els.statInliers.textContent = p.inliers;
-  els.statInlierRatio.textContent = `${p.inlierRatio}%`;
+  if (els.statTotalMatches) els.statTotalMatches.textContent = p.totalMatches;
+  if (els.statInliers) els.statInliers.textContent = p.inliers;
+  if (els.statInlierRatio) els.statInlierRatio.textContent = `${p.inlierRatio}%`;
 
-  // Render Homography Grid
-  const H = p.H;
-  const cells = els.matrixValuesGrid.querySelectorAll('.m-cell');
-  if (cells.length === 9) {
-    for (let i = 0; i < 9; i++) {
-      cells[i].textContent = H[i].toFixed(4);
+  // Render Homography Grid (if exists)
+  if (els.matrixValuesGrid) {
+    const H = p.H;
+    const cells = els.matrixValuesGrid.querySelectorAll('.m-cell');
+    if (cells.length === 9) {
+      for (let i = 0; i < 9; i++) {
+        cells[i].textContent = H[i].toFixed(4);
+      }
     }
   }
 
-  // Geometric interpretations
-  const dx = H[2].toFixed(1);
-  const dy = H[5].toFixed(1);
-  els.transVal.textContent = `dx: ${dx} px, dy: ${dy} px`;
+  // Geometric interpretations (if exists)
+  if (els.transVal && els.scaleVal && els.projVal) {
+    const H = p.H;
+    const dx = H[2].toFixed(1);
+    const dy = H[5].toFixed(1);
+    els.transVal.textContent = `dx: ${dx} px, dy: ${dy} px`;
 
-  const sx = Math.sqrt(H[0] * H[0] + H[1] * H[1]).toFixed(3);
-  const sy = Math.sqrt(H[3] * H[3] + H[4] * H[4]).toFixed(3);
-  els.scaleVal.textContent = `sx: ${sx}, sy: ${sy}`;
+    const sx = Math.sqrt(H[0] * H[0] + H[1] * H[1]).toFixed(3);
+    const sy = Math.sqrt(H[3] * H[3] + H[4] * H[4]).toFixed(3);
+    els.scaleVal.textContent = `sx: ${sx}, sy: ${sy}`;
 
-  const h31 = H[6].toFixed(5);
-  const h32 = H[7].toFixed(5);
-  els.projVal.textContent = `${h31}, ${h32}`;
+    const h31 = H[6].toFixed(5);
+    const h32 = H[7].toFixed(5);
+    els.projVal.textContent = `${h31}, ${h32}`;
+  }
 }
 
-els.pairSelect.addEventListener('change', (e) => {
-  const idx = parseInt(e.target.value, 10);
-  renderActivePairVisuals(idx);
-  els.homographyPairSelect.value = e.target.value;
-});
+if (els.pairSelect) {
+  els.pairSelect.addEventListener('change', (e) => {
+    const idx = parseInt(e.target.value, 10);
+    renderActivePairVisuals(idx);
+    if (els.homographyPairSelect) els.homographyPairSelect.value = e.target.value;
+  });
+}
 
-els.homographyPairSelect.addEventListener('change', (e) => {
-  const idx = parseInt(e.target.value, 10);
-  renderActivePairVisuals(idx);
-  els.pairSelect.value = e.target.value;
-});
+if (els.homographyPairSelect) {
+  els.homographyPairSelect.addEventListener('change', (e) => {
+    const idx = parseInt(e.target.value, 10);
+    renderActivePairVisuals(idx);
+    if (els.pairSelect) els.pairSelect.value = e.target.value;
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Hold-to-Compare Toggle (Seamless vs No-Blending)
