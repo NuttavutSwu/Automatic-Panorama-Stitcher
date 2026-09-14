@@ -270,11 +270,18 @@
 
   <!-- OpenCV.js Loader Handshake -->
   <script>
+    function triggerOpenCvReady() {
+      if (window.onOpenCvReady) {
+        window.onOpenCvReady();
+      }
+    }
     function onOpenCvLoad() {
       if (typeof cv !== 'undefined') {
-        cv['onRuntimeInitialized'] = () => {
-          if (window.onOpenCvReady) window.onOpenCvReady();
-        };
+        if (cv.Mat) {
+          triggerOpenCvReady();
+        } else {
+          cv['onRuntimeInitialized'] = triggerOpenCvReady;
+        }
       }
     }
   </script>
