@@ -1,68 +1,241 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panorama — ประกบภาพพาโนรามาอัตโนมัติ</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automatic Panorama Stitcher — Minimal Computer Vision</title>
+  <meta name="description" content="Minimal Automatic Panorama Stitcher powered by OpenCV.js WebAssembly. Multi-image feature matching, Homography warping, and seamless blending.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="page">
+  <div class="app-layout">
 
-  <header class="masthead">
-    <div class="mark">
-      <span class="mark-dot"></span>Panorama
+    <!-- Minimal Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-mark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+            <circle cx="9" cy="9" r="2"/>
+            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+          </svg>
+        </div>
+        <span class="brand-title">Panorama Stitcher</span>
+        <span class="brand-tag">OpenCV.js WASM</span>
+      </div>
+
+      <div class="header-actions">
+        <div id="systemPill" class="system-pill">
+          <span class="pill-dot"></span>
+          <span id="pillText" class="pill-text">กำลังโหลด OpenCV...</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="main-container">
+
+      <!-- Upload & Filmstrip Section -->
+      <section class="upload-zone-wrapper">
+        <div id="dropzone" class="dropzone">
+          <input type="file" id="fileInput" accept="image/*" multiple hidden>
+          <div class="drop-content">
+            <div class="drop-icon-box">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <div class="drop-text-group">
+              <p class="drop-primary">
+                ลากรูปมาวางตรงนี้ หรือ <button type="button" id="browseBtn" class="link-btn">เลือกไฟล์จากเครื่อง</button>
+              </p>
+              <p class="drop-secondary">รองรับ JPG, PNG · ถ่ายเรียงซ้ายไปขวา Overlap ~25%</p>
+            </div>
+            <div class="sample-badge-wrap">
+              <button type="button" id="sampleBtn" class="ghost-chip">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                </svg>
+                ลองภาพตัวอย่าง (1, 2, 3)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Horizontal Filmstrip -->
+        <ul id="filmstrip" class="filmstrip" aria-label="ลำดับภาพ"></ul>
+      </section>
+
+      <!-- Minimal Floating Dock / Controls Toolbar -->
+      <section class="toolbar-dock">
+        <div class="dock-left">
+          <button id="stitchBtn" class="btn-primary" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            <span>ประกบภาพ</span>
+          </button>
+
+          <button id="viewMatchesBtn" class="btn-secondary" hidden>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <span>ดู Feature Matches</span>
+          </button>
+
+          <a id="downloadLink" class="btn-download" download="panorama.png" hidden>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span>บันทึกภาพ</span>
+          </a>
+        </div>
+
+        <div class="dock-divider"></div>
+
+        <div class="dock-right">
+          <!-- Switches -->
+          <div class="toggles-group">
+            <label class="clean-toggle" title="เกลี่ยรอยต่อในบริเวณที่ทับซ้อนด้วย Distance-Transform Feathering">
+              <input type="checkbox" id="blendingToggle" checked>
+              <span class="toggle-track"></span>
+              <span class="toggle-text">Seamless Blending</span>
+            </label>
+
+            <label class="clean-toggle" title="ตัดขอบดำจากการเอียงของ Homography Matrix อัตโนมัติ">
+              <input type="checkbox" id="cropToggle" checked>
+              <span class="toggle-track"></span>
+              <span class="toggle-text">Auto-Crop</span>
+            </label>
+          </div>
+
+          <button id="resetBtn" class="btn-icon" title="ล้างทั้งหมด" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18"/>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+            </svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- Minimal Progress Line -->
+      <div id="progressWrap" class="progress-container" hidden>
+        <div class="progress-meta">
+          <span id="status" class="status-msg">พร้อมทำงาน</span>
+          <span id="progressPercent" class="status-num">0%</span>
+        </div>
+        <div class="progress-track">
+          <div id="progressBarFill" class="progress-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Studio Canvas Viewport -->
+      <section class="viewport-section">
+        <div id="canvasWrap" class="studio-canvas-wrap">
+          <canvas id="outputCanvas"></canvas>
+          <div id="placeholder" class="studio-placeholder">
+            <div class="placeholder-rings">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+                <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+                <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+                <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </div>
+            <p class="empty-title">แคนวาสแสดงผลภาพพาโนรามา</p>
+            <p class="empty-sub">เพิ่มรูปภาพอย่างน้อย 2 ภาพ แล้วคลิก "ประกบภาพ"</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Minimal CV Pipeline Overview -->
+      <section class="cv-overview-section">
+        <div class="section-head">
+          <h2 class="section-title">Computer Vision Pipeline</h2>
+          <span class="section-sub">อัลกอริทึมที่อยู่เบื้องหลังการต่อภาพ</span>
+        </div>
+
+        <div class="pipeline-row">
+          <div class="pipeline-item">
+            <span class="item-index">01</span>
+            <h3 class="item-title">ORB Detection</h3>
+            <p class="item-desc">ตรวจจับ 4,000 Keypoints และ Descriptors ที่ทนทานต่อการหมุนและแสง</p>
+          </div>
+          <div class="pipeline-item">
+            <span class="item-index">02</span>
+            <h3 class="item-title">BFMatcher + Ratio</h3>
+            <p class="item-desc">จับคู่จุดเด่นด้วย Hamming Distance และกรองด้วย Lowe's Ratio Test (0.75)</p>
+          </div>
+          <div class="pipeline-item">
+            <span class="item-index">03</span>
+            <h3 class="item-title">RANSAC Homography</h3>
+            <p class="item-desc">ประมาณการ 3×3 Homography Matrix และกำจัด Outliers อย่างแม่นยำ</p>
+          </div>
+          <div class="pipeline-item">
+            <span class="item-index">04</span>
+            <h3 class="item-title">Seamless Blending</h3>
+            <p class="item-desc">เกลี่ยรอยต่อด้วย Distance-Transform Feathering ผสมสีในจุดทับซ้อนไร้ตะเข็บ</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Clean Minimal Footer -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <span>Automatic Panorama Stitcher</span>
+        <span class="dot-sep">•</span>
+        <span>OpenCV.js (WebAssembly)</span>
+      </div>
+      <div class="footer-right">
+        <span class="deploy-badge">Deploy Ready for GitHub Pages</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Feature Matches Modal (Clean Minimal Backdrop) -->
+  <div id="matchesModal" class="clean-modal" hidden>
+    <div class="modal-scrim" id="modalBackdrop"></div>
+    <div class="modal-window">
+      <div class="window-header">
+        <div class="window-title-group">
+          <span class="window-indicator"></span>
+          <h3 class="window-title">ORB Feature Matches & RANSAC Inliers</h3>
+        </div>
+        <button type="button" id="closeModalBtn" class="window-close-btn" aria-label="ปิด">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="window-body">
+        <p id="modalMatchesInfo" class="window-desc">แสดงเส้นโยงจุดเด่นระหว่างภาพ</p>
+        <div class="matches-view-container">
+          <canvas id="matchesCanvas"></canvas>
+        </div>
+      </div>
     </div>
-    <p class="tagline">อัปโหลดรูปที่ถ่ายต่อเนื่องกัน ระบบจะหาจุดเด่นร่วมระหว่างภาพแล้ววาร์ปประกบเป็นภาพเดียวให้อัตโนมัติ — ประมวลผลทั้งหมดในเบราว์เซอร์ของคุณ ไม่มีรูปไหนถูกส่งออกไปไหน</p>
-  </header>
+  </div>
 
-  <section class="filmstrip-section">
-    <div id="dropzone" class="dropzone">
-      <input type="file" id="fileInput" accept="image/*" multiple hidden>
-      <p class="dropzone-main">ลากรูปมาวางตรงนี้ หรือ <button type="button" id="browseBtn" class="link-btn">เลือกไฟล์จากเครื่อง</button></p>
-      <p class="hint">รองรับ .jpg / .png — เรียงจากซ้ายไปขวาตามลำดับที่ถ่าย ควรมีพื้นที่ภาพซ้อนกันอย่างน้อย ~25%</p>
-    </div>
-    <ul id="filmstrip" class="filmstrip" aria-label="รูปที่อัปโหลด เรียงลำดับได้โดยการลาก"></ul>
-  </section>
-
-  <section class="stage-section">
-    <div class="stage-controls">
-      <button id="stitchBtn" class="primary-btn" disabled>ประกบภาพ</button>
-      <button id="resetBtn" class="ghost-btn" disabled>ล้างทั้งหมด</button>
-      <a id="downloadLink" class="ghost-btn" download="panorama.png" hidden>ดาวน์โหลดภาพ</a>
-      <span id="status" class="status" role="status"></span>
-    </div>
-    <div id="canvasWrap" class="canvas-wrap">
-      <canvas id="outputCanvas"></canvas>
-      <p id="placeholder" class="placeholder">ผลลัพธ์พาโนรามาจะแสดงที่นี่</p>
-    </div>
-  </section>
-
-  <section class="how-section">
-    <h2>เบื้องหลังการทำงาน</h2>
-    <ol>
-      <li><span class="step-label">หาจุดเด่น</span>ในแต่ละภาพด้วยอัลกอริทึม ORB</li>
-      <li><span class="step-label">จับคู่จุดเด่น</span>ระหว่างภาพที่ติดกันด้วย Brute-Force Matcher และ Lowe's ratio test</li>
-      <li><span class="step-label">คำนวณ Homography</span>ด้วย RANSAC เพื่อหามุมมองที่เชื่อมภาพเข้าด้วยกัน</li>
-      <li><span class="step-label">วาร์ปและวางซ้อน</span>ภาพทีละคู่ไปเรื่อยๆ จนครบทุกภาพ</li>
-    </ol>
-  </section>
-
-  <footer class="page-footer">
-    <p>ขับเคลื่อนด้วย OpenCV.js · โปรเจกต์ demo เพื่อการเรียนรู้ — ผลลัพธ์อาจไม่แม่นยำกับภาพที่ overlap น้อย แสงต่างกันมาก หรือมีวัตถุเคลื่อนไหว</p>
-  </footer>
-
-</div>
-
-<script>
-  function onOpenCvLoad() {
-    cv['onRuntimeInitialized'] = onOpenCvReady;
-  }
-</script>
-<script async src="https://docs.opencv.org/4.9.0/opencv.js" onload="onOpenCvLoad();" type="text/javascript"></script>
-<script src="app.js"></script>
+  <script>
+    function onOpenCvLoad() {
+      cv['onRuntimeInitialized'] = onOpenCvReady;
+    }
+  </script>
+  <script async src="https://docs.opencv.org/4.9.0/opencv.js" onload="onOpenCvLoad();" type="text/javascript"></script>
+  <script src="app.js"></script>
 </body>
 </html>
