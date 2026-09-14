@@ -203,8 +203,8 @@ els.dropzone.addEventListener('click', (e) => {
 // Sample images loader — supports 3 datasets via dropdown
 const SAMPLE_DATASETS = {
   '1': { folder: 'Sample Dataset', files: ['1.jpg', '2.jpg', '3.jpg'] },
-  '2': { folder: 'Sample Dataset 2', files: ['1.jpg', '2.jpg', '3.jpg'] },
-  '3': { folder: 'Sample Dataset 3', files: ['1.jpg', '2.jpg', '3.jpg'] },
+  '2': { folder: 'Sample Dataset 2', files: ['11040035_l.png', '11040035_r.png'] },
+  '3': { folder: 'Sample Dataset 3', files: ['11040035ours_l.PNG', '11040035ours_r.PNG'] },
 };
 
 async function loadSamplePreset() {
@@ -221,11 +221,12 @@ async function loadSamplePreset() {
 
     for (let i = 0; i < sampleNames.length; i++) {
       const name = sampleNames[i];
-      const url = `${basePath}/${name}`;
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error(`ไม่พบไฟล์ตัวอย่าง ${url} — กรุณาเพิ่มรูปในโฟลเดอร์ "${basePath}"`);
+      const encodedUrl = `${encodeURIComponent(basePath)}/${encodeURIComponent(name)}`;
+      const resp = await fetch(encodedUrl);
+      if (!resp.ok) throw new Error(`ไม่พบไฟล์ตัวอย่าง ${basePath}/${name} — กรุณาตรวจสอบไฟล์`);
       const blob = await resp.blob();
-      const file = new File([blob], name, { type: 'image/jpeg' });
+      const mimeType = name.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+      const file = new File([blob], name, { type: mimeType });
       state.frames.push({
         id: `sample-${selectedSet}-${i}-${Date.now()}`,
         file,
