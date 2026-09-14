@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panorama — ประกบภาพพาโนรามาอัตโนมัติ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="mark">
+      <span class="mark-dot"></span>Panorama
+    </div>
+    <p class="tagline">อัปโหลดรูปที่ถ่ายต่อเนื่องกัน ระบบจะหาจุดเด่นร่วมระหว่างภาพแล้ววาร์ปประกบเป็นภาพเดียวให้อัตโนมัติ — ประมวลผลทั้งหมดในเบราว์เซอร์ของคุณ ไม่มีรูปไหนถูกส่งออกไปไหน</p>
+  </header>
+
+  <section class="filmstrip-section">
+    <div id="dropzone" class="dropzone">
+      <input type="file" id="fileInput" accept="image/*" multiple hidden>
+      <p class="dropzone-main">ลากรูปมาวางตรงนี้ หรือ <button type="button" id="browseBtn" class="link-btn">เลือกไฟล์จากเครื่อง</button></p>
+      <p class="hint">รองรับ .jpg / .png — เรียงจากซ้ายไปขวาตามลำดับที่ถ่าย ควรมีพื้นที่ภาพซ้อนกันอย่างน้อย ~25%</p>
+    </div>
+    <ul id="filmstrip" class="filmstrip" aria-label="รูปที่อัปโหลด เรียงลำดับได้โดยการลาก"></ul>
+  </section>
+
+  <section class="stage-section">
+    <div class="stage-controls">
+      <button id="stitchBtn" class="primary-btn" disabled>ประกบภาพ</button>
+      <button id="resetBtn" class="ghost-btn" disabled>ล้างทั้งหมด</button>
+      <a id="downloadLink" class="ghost-btn" download="panorama.png" hidden>ดาวน์โหลดภาพ</a>
+      <span id="status" class="status" role="status"></span>
+    </div>
+    <div id="canvasWrap" class="canvas-wrap">
+      <canvas id="outputCanvas"></canvas>
+      <p id="placeholder" class="placeholder">ผลลัพธ์พาโนรามาจะแสดงที่นี่</p>
+    </div>
+  </section>
+
+  <section class="how-section">
+    <h2>เบื้องหลังการทำงาน</h2>
+    <ol>
+      <li><span class="step-label">หาจุดเด่น</span>ในแต่ละภาพด้วยอัลกอริทึม ORB</li>
+      <li><span class="step-label">จับคู่จุดเด่น</span>ระหว่างภาพที่ติดกันด้วย Brute-Force Matcher และ Lowe's ratio test</li>
+      <li><span class="step-label">คำนวณ Homography</span>ด้วย RANSAC เพื่อหามุมมองที่เชื่อมภาพเข้าด้วยกัน</li>
+      <li><span class="step-label">วาร์ปและวางซ้อน</span>ภาพทีละคู่ไปเรื่อยๆ จนครบทุกภาพ</li>
+    </ol>
+  </section>
+
+  <footer class="page-footer">
+    <p>ขับเคลื่อนด้วย OpenCV.js · โปรเจกต์ demo เพื่อการเรียนรู้ — ผลลัพธ์อาจไม่แม่นยำกับภาพที่ overlap น้อย แสงต่างกันมาก หรือมีวัตถุเคลื่อนไหว</p>
+  </footer>
+
+</div>
+
+<script>
+  function onOpenCvLoad() {
+    cv['onRuntimeInitialized'] = onOpenCvReady;
+  }
+</script>
+<script async src="https://docs.opencv.org/4.9.0/opencv.js" onload="onOpenCvLoad();" type="text/javascript"></script>
+<script src="app.js"></script>
+</body>
+</html>
