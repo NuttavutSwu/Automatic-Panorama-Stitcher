@@ -29,49 +29,7 @@
    - ปุ่ม **"โหลดภาพตัวอย่าง (Sample Demo)"** โหลดภาพ `1.jpg`, `2.jpg`, `3.jpg` มาทดสอบได้ในคลิกเดียว
    - ปรับแต่งพารามิเตอร์ ORB Keypoints, RANSAC Inlier Threshold ได้ตามต้องการ
 
----
-
-## 🚀 การ Deploy ขึ้นเว็บใช้งานจริง (Deployment)
-
-### วิธีที่ 1: GitHub Pages (แนะนำ - ฟรีตลอดชีพ)
-เนื่องจากเราได้สร้างไฟล์ GitHub Actions Workflow ไว้ที่ `.github/workflows/deploy.yml` เรียบร้อยแล้ว:
-1. Push โค้ดขึ้น GitHub:
-   ```bash
-   git add .
-   git commit -m "Add automatic panorama stitcher with seamless blending and deploy workflow"
-   git push origin Kan
-   ```
-2. ไปที่หน้า GitHub Repository ของคุณ -> เลือกแท็บ **Settings**
-3. ที่เมนูด้านซ้าย เลือกหัวข้อ **Pages**
-4. ในส่วน **Build and deployment**:
-   - เลือก **Source**: `GitHub Actions`
-5. GitHub Actions จะทำการ Deploy ให้อัตโนมัติทันที และแสดง URL ประจำเว็บของคุณ เช่น:
-   `https://bunyaveedeechuay.github.io/Automatic-Panorama-Stitcher/`
-
-### วิธีที่ 2: Vercel (1-Click Deployment)
-1. เข้าไปที่ [Vercel](https://vercel.com/)
-2. กด **Add New Project** -> Import GitHub Repository `bunyaveedeechuay/Automatic-Panorama-Stitcher`
-3. กด **Deploy** ได้ทันที (มีไฟล์ `vercel.json` รองรับแล้ว)
-
----
-
-## 💻 วิธีรันบนเครื่อง Local
-
-เนื่องจากเป็น Static Web App สามารถรันผ่าน Local HTTP Server ได้ง่ายๆ:
-
-```bash
-# ด้วย Python
-python -m http.server 8000
-
-# หรือด้วย Node.js npx
-npx serve .
-```
-
-แล้วเปิดเว็บเบราว์เซอร์ไปที่ `http://localhost:8000`
-
----
-
-## 🔬 อธิบายขั้นตอนการทำงานอย่างละเอียด (How It Works — Step by Step)
+## (How It Works)
 
 เพื่อให้เข้าใจง่าย ลองจินตนาการว่าระบบนี้ทำงานเหมือน **"การต่อจิ๊กซอว์รูปถ่ายที่มีส่วนซ้อนทับกัน"** โดยคอมพิวเตอร์จะมองหาจุดที่เหมือนกันในแต่ละภาพ นำมาวางทาบ ดัดมุมมองให้ตรงกัน แล้วเกลี่ยสีตรงรอยต่อให้เนียนสนิท โดยมีขั้นตอนทั้งหมดดังนี้:
 
